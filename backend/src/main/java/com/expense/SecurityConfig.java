@@ -31,7 +31,12 @@ public class SecurityConfig {
     @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
     @Bean SecurityFilterChain filterChain(HttpSecurity http, JwtService jwt) throws Exception {
         http.csrf(csrf -> csrf.disable()).cors(cors -> {}).sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(a -> a.requestMatchers("/api/auth/**", "/actuator/health").permitAll().requestMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().authenticated())
+            .authorizeHttpRequests(a -> a.requestMatchers(
+                    "/api/auth/**",
+                    "/actuator/health",
+                    "/actuator/health/liveness",
+                    "/actuator/health/readiness"
+                ).permitAll().requestMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().authenticated())
             .exceptionHandling(e -> e.authenticationEntryPoint((req, res, ex) -> res.sendError(HttpStatus.UNAUTHORIZED.value())))
             .addFilterBefore(new JwtFilter(jwt), UsernamePasswordAuthenticationFilter.class);
         return http.build();

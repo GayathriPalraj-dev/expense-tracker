@@ -1,10 +1,10 @@
 package com.expense;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.mockito.Mockito.when;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +35,15 @@ class JwtSecurityTest {
     void transactionAndDashboardRoutesRejectAnonymousRequests() throws Exception {
         mvc.perform(get("/api/transactions")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/dashboard/summary")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void actuatorHealthAndProbeEndpointsArePublicButOtherActuatorPathsAreProtected() throws Exception {
+        mvc.perform(get("/actuator/health"))
+            .andExpect(result -> assertNotEquals(401, result.getResponse().getStatus()));
+        mvc.perform(get("/actuator/health/liveness")).andExpect(status().isOk());
+        mvc.perform(get("/actuator/health/readiness")).andExpect(status().isOk());
+        mvc.perform(get("/actuator/health/unknown")).andExpect(status().isUnauthorized());
     }
 
     @Test
