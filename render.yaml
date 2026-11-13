@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: expense-tracker-api
+    runtime: docker
+    rootDir: backend
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: PORT
+        value: "8080"
